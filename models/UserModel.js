@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const passportLocalMongoose = require("passport-local-mongoose");
+
 
 // cart sub schema
 const cartSchema = mongoose.Schema({
@@ -10,26 +12,19 @@ const cartSchema = mongoose.Schema({
     qty: Number
 });
 
-//Order sub-schema
-const orderSchema = mongoose.Schema({
-    orderTime : Date,
-    phone : String, 
-    address : String,
-    orderPrice : Number,
-    totalItems : Number,
-    orderItems : [cartSchema], 
-    orderStatus : Number
-});
-
 //User Schema
 const userSchema = mongoose.Schema({
-    username : String,
+    username : {type: String, required: true, unique: true}, //this is email
+    name : {type: String, required: true},
     cart : [cartSchema],
-    orders : [orderSchema]
+    auth : {type : String, default : "customer"}
 });
+
+userSchema.plugin(passportLocalMongoose);
 
 //User model
 const User = mongoose.model("User", userSchema);
 
+
 //exports
-module.exports = User
+module.exports =  User
