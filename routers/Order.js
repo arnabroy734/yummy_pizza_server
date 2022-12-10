@@ -1,12 +1,12 @@
 const express = require("express");
 const { authenticateUser } = require("../auth/auth");
-const { placeOrder, updateOrder, getAllOrders, getByOrderId, getByUsernameOpen, getByUsernameClose } = require("../models/OrderModel");
+const { placeOrder, updateOrder, getAllOrdersOpen, getByOrderId, getByUsernameOpen, getByUsernameClose, getAllOrdersClose } = require("../models/OrderModel");
 const router = express.Router();
 
 router.post("/", authenticateUser, (req, res) => {
     let order = req.body;
     order.orderTime = new Date(order.orderTime);
-    order = {...order, email : req.user.username};
+    order = { ...order, email: req.user.username };
 
 
     placeOrder(order)
@@ -32,16 +32,25 @@ router.patch("/", (req, res) => {
         })
 });
 
-router.get("/all", (req, res) => {
+router.get("/allopen", (req, res) => {
 
-    getAllOrders()
+    getAllOrdersOpen()
         .then((orders) => {
-            console.log(orders);
             res.status(200).send(orders);
         })
         .catch((err) => {
             res.status(500).send([]);
-        })
+        });
+})
+
+router.get("/allclose/:offset/:limit", (req, res) => {
+    getAllOrdersClose(req.params.offset, req.params.limit)
+        .then((orders) => {
+            res.status(200).send(orders);
+        }).catch((err) => {
+            console.log(err);
+            res.status(500).send([]);
+        });
 })
 
 router.get("/id/:orderId", (req, res) => {
@@ -56,8 +65,8 @@ router.get("/id/:orderId", (req, res) => {
         });
 })
 
-router.get("/user/open",  authenticateUser, (req, res) => {
-    
+router.get("/user/open", authenticateUser, (req, res) => {
+
     getByUsernameOpen(req.user.username)
         .then((orders) => {
             res.status(200).send(orders);
@@ -68,8 +77,8 @@ router.get("/user/open",  authenticateUser, (req, res) => {
 
 })
 
-router.get("/user/close",  authenticateUser, (req, res) => {
-    
+router.get("/user/close", authenticateUser, (req, res) => {
+
     getByUsernameClose(req.user.username)
         .then((orders) => {
             res.status(200).send(orders);

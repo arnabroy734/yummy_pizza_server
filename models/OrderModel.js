@@ -51,9 +51,19 @@ async function updateOrder(orderId, status) {
     }
 }
 
-async function getAllOrders() {
+async function getAllOrdersOpen() {
     try {
-        let orders = await Order.find();
+        let orders = await Order.find({orderStatus : {$lt : 4}});
+        return orders;
+    }
+    catch(err) {
+        throw Error(err);
+    }
+}
+
+async function getAllOrdersClose(offset, limit) {
+    try {
+        let orders = await Order.find({orderStatus : {$eq : 4}}).skip(offset).limit(limit);
         return orders;
     }
     catch(err) {
@@ -95,5 +105,5 @@ async function getByUsernameClose( username) {
 }
 
 module.exports =  { Order , placeOrder, 
-    updateOrder, getAllOrders,getByOrderId,  
-    getByUsernameOpen, getByUsernameClose}
+    updateOrder, getAllOrdersOpen,getByOrderId,  
+    getByUsernameOpen, getByUsernameClose, getAllOrdersClose}
